@@ -12,10 +12,14 @@ Tomcat will run on port 8080
 
 MediaType - JSON
 
-Endpoints:
+**Endpoints:**
 
-POST/{your docker host-ip}//mortgage/loan - TO CREATE A NEW LOAN
+TO CREATE A NEW LOAN:
+
+POST/{your docker host-ip}//mortgage/loan
+
 Loan Payload example:
+
 {
 "firstName":"test",
 "lastName":"test",
@@ -25,8 +29,12 @@ Loan Payload example:
 "rate":0.05
 }
 
-POST/{your docker host-ip}//mortgage/loan/{load_id}/invest - TO CREATE AN INVESTMENT
+TO CREATE AN INVESTMENT:
+
+POST/{your docker host-ip}//mortgage/loan/{load_id}/invest
+
 loan_id - loan id of loan to be invested (i.e 1)
+
 Investment payload:
 {
 "firstName":"test",
@@ -36,8 +44,12 @@ Investment payload:
 }
 
 GET/{your docker host-ip}//mortgage/loan/id=1&startDate=2015-12-01&endDate=2015-12-20
-id - is the loan id and required
-startDate and endDate  - represents the date range for investments associated with this loan (not required - defaults to all associated investment)
+
+id: is the loan id and required
+
+startDate and endDate:represents the date range for investments associated with this loan 
+(not required - defaults to all associated investment)
+
 Example response:
  {
    "id": 1,
