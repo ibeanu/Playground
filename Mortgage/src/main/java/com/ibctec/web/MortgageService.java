@@ -29,36 +29,57 @@ public class MortgageService {
         return loanRepository.save(loan);
     }
 
+    /**
+     *
+     * @param id
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     public Loan findLoanById(long id, String startDate, String endDate){
         Loan loan = loanRepository.findOne(id);
-        Set<Investment> investments = loan.getInvestments();
+        if ( loan != null ) {
+            Set<Investment> investments = loan.getInvestments();
 
-        if ( startDate != null && endDate != null) {
-            investments = investments
+            if (startDate != null && endDate != null) {
+                investments = investments
+                        .stream()
+                        .filter(i -> DateTime.parse(i.getStartDate()).getMillis() > DateTime.parse(startDate).getMillis()
+                                && DateTime.parse(i.getStartDate()).getMillis() < DateTime.parse(endDate).getMillis())
+                        .collect(Collectors.toSet());
+
+            }
+            investments
                     .stream()
-                    .filter(i -> DateTime.parse(i.getStartDate()).getMillis() > DateTime.parse(startDate).getMillis()
-                            && DateTime.parse(i.getStartDate()).getMillis() < DateTime.parse(endDate).getMillis())
-                    .collect(Collectors.toSet());
-
+                    .forEach(Investment::calculateInterest);
+            loan.setInvestments(investments);
         }
-        investments
-                .stream()
-                .forEach(Investment::calculateInterest);
-        loan.setInvestments(investments);
         return loan;
     }
 
+    /**
+     *
+     * @param id
+     */
     public void deleteLoan(int id) {
         Loan loan = findLoanById(id, null, null);
         loanRepository.delete(loan);
     }
 
+    /**
+     *
+     * @param investment
+     * @param id
+     * @return
+     */
     public Investment createInvestMentForLoan(Investment investment, long id){
         Loan loan = findLoanById(id, null, null);
-        loan.addInvestments(investment);
-        save(loan);
+        if ( loan != null ) {
+            loan.addInvestments(investment);
+            save(loan);
 
-        investment.setLoan(loan);
+            investment.setLoan(loan);
+        }
         return investmentRepository.save(investment);
     }
 }

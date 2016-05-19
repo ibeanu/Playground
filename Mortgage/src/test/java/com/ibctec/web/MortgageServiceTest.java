@@ -1,37 +1,25 @@
 package com.ibctec.web;
 
-import com.ibctec.Application;
-import com.ibctec.MocksApplication;
 import com.ibctec.jpa.Investment;
 import com.ibctec.jpa.InvestmentBuilder;
 import com.ibctec.jpa.Loan;
 import com.ibctec.jpa.LoanBuilder;
 import com.ibctec.repository.InvestmentRepository;
 import com.ibctec.repository.LoanRepository;
-import org.easymock.EasyMock;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 
 import java.math.BigDecimal;
 import java.util.HashSet;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
+import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * Module: Mortgage
@@ -47,6 +35,8 @@ public class MortgageServiceTest {
     private MortgageService mortgageService;
     @Mock
     private LoanRepository loanRepository;
+    @Mock
+    private InvestmentRepository investmentRepository;
 
     @Test
     public void shouldReturnLoanWithWhenGivenAnId() throws Exception {
@@ -100,7 +90,7 @@ public class MortgageServiceTest {
 
        loanById.getInvestments()
                .stream()
-               .forEach(i -> assertThat(i.getInterestOwed(), is(4.95)));
+               .forEach(i -> assertThat(i.getInterestOwed(), is(BigDecimal.valueOf(4.95))));
     }
 
     @Test
@@ -147,6 +137,31 @@ public class MortgageServiceTest {
                 DateTime.now().minusDays(5).toString());
 
         assertThat(loanById.getInvestments().size(), is(2));
+    }
+    @Test
+    public void canHandleCreatNewInvestmentWhenLoanNotExist() throws Exception {
+        Loan loan = LoanBuilder.aLoan()
+                .withId(1L)
+                .withFirstName("first")
+                .withLastName("last")
+                .withAmount(BigDecimal.TEN)
+                .withStartDate(DateTime.now().minusDays(20).toDate())
+                .withEndDate(DateTime.now().toDate())
+                .withRate(BigDecimal.valueOf(0.45))
+                .withInvestments(new HashSet<>())
+                .build();
+        Investment investment = InvestmentBuilder
+                .anInvestment()
+                .withStartDate(DateTime.now().minusDays(10).toDate())
+                .withLoan(loan)
+                .build();
+
+        Mockito.when(loanRepository.findOne(1L)).thenReturn(null);
+
+        Mockito.when(investmentRepository.save(investment)).thenReturn(investment);
+
+        Investment investmentForLoan = mortgageService.createInvestMentForLoan(investment, 1);
+        assertNotNull(investmentForLoan);
     }
 
 }
