@@ -44,8 +44,13 @@ public class MortgageService {
             if (startDate != null && endDate != null) {
                 investments = investments
                         .stream()
-                        .filter(i -> DateTime.parse(i.getStartDate()).getMillis() > DateTime.parse(startDate).getMillis()
-                                && DateTime.parse(i.getStartDate()).getMillis() < DateTime.parse(endDate).getMillis())
+                        .filter(i -> {
+                            long investmentStartDate = DateTime.parse(i.getStartDate()).getMillis();
+                            long startDateRangeMillis = DateTime.parse(startDate).getMillis();
+                            long endDateRangeMillis = DateTime.parse(endDate).getMillis();
+                            return investmentStartDate > startDateRangeMillis
+                                    && investmentStartDate < endDateRangeMillis;
+                        })
                         .collect(Collectors.toSet());
 
             }
