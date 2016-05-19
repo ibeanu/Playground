@@ -6,7 +6,7 @@ Ensure docker is installed and then run:
 
 mvn package docker:build    ---- To create an docker image
 
-docker run -t -p8080:8080 ikenna1/mortgage - to run the image
+docker run -t -p 8080:8080 ikenna1/mortgage - to run the image
 
 Tomcat will run on port 8080
 
@@ -73,10 +73,12 @@ Example response:
   
  Then run endpoints on localhost.
  
- **Assumptionsor Ommitions:**
+ **Assumptions or Ommitions:**
  
  Spring Active Profile was not used to run for production mode
+ 
  Relation between loan and investment is one to many and reverse many to one relationship.
+ 
  Investment does not need to be removed.
  
  Thanks.
